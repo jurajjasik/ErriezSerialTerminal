@@ -77,6 +77,10 @@ void SerialTerminal::addCommand(const char *command, void (*function)())
     _numCommands++;
 }
 
+void SerialTerminal::setInterruptCommand(void (*function)())
+{
+    _functionInterrupt = function;
+}
 
 /*!
  * \brief Set the control state to echo any printable chars to the console.
@@ -171,7 +175,18 @@ void SerialTerminal::readSerial()
                     Serial.print("\b \b"); // 1 char back, space, 1 char back
                 }
             }
-        } else if (isprint(c)) {
+        } else if (c == 0x03) {
+			_functionInterrupt();
+			if (doCharEcho) {
+				Serial.println("^C");
+			}
+			//Run the post command handler.
+            if (_postCommandHandler) {
+                (*_postCommandHandler)();
+            }
+
+            clearBuffer();
+		} else if (isprint(c)) {
             // Store printable characters in serial receive buffer
             if (_rxBufferIndex < ST_RX_BUFFER_SIZE) {
                 _rxBuffer[_rxBufferIndex++] = c;

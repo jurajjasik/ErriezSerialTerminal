@@ -55,6 +55,7 @@ public:
     explicit SerialTerminal(char newlineChar='\n', char delimiterChar=' ');
 
     void addCommand(const char *command, void(*function)());
+	void setInterruptCommand(void(*function)());
     void setDefaultHandler(void (*function)(const char *));
 
     void setSerialEcho(bool doEcho);
@@ -73,6 +74,7 @@ private:
     };
 
     SerialTerminalCallback *_commandList;
+	void (*_functionInterrupt)();
     byte _numCommands;
     char _newlineChar;
     char _delimiter[2];
